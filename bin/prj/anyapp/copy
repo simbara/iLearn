@@ -1,0 +1,66 @@
+package prj.anyapp;
+
+import android.app.Activity;
+import android.content.Context;
+import android.hardware.Sensor;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
+import android.hardware.SensorManager;
+import android.os.Bundle;
+import android.util.Log;
+import android.widget.TextView;
+
+public class AccelerometerReader extends Activity implements SensorEventListener {
+    private TextView mainText; // here we display accelerometer info
+    private SensorManager mySensorManager; // used to acquire sensor access
+    private Sensor accSensor; // accelerometer sensor object
+    // ...
+
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.main);
+        mainText = (TextView)findViewById(R.id.main_text);  
+
+
+        // Set SensorManager and acquire a reference to accelerometer sensor
+        mySensorManager = (SensorManager)getSystemService(Context.SENSOR_SERVICE);
+        accSensor = mySensorManager.getSensorList(Sensor.TYPE_ACCELEROMETER).get(0);
+        // it may be a good idea to first check the returned Sensor list
+        // size to be sure we actually did get an accelerometer reference
+        // ...
+    }
+
+    // register current SensorEventListener
+    @Override
+    protected void onResume()
+    {
+        super.onResume();
+        mySensorManager.registerListener(this, accSensor, SensorManager.SENSOR_DELAY_NORMAL);
+    }
+
+    // unregister current SensorEventListener
+    @Override
+    protected void onStop()
+    {
+        mySensorManager.unregisterListener(this);
+        super.onStop();
+    }
+
+    // receives accuracy changes form sensor
+    public void onAccuracyChanged(Sensor sensor, int accuracy) {
+        Log.d("TestingArea","onAccuracyChanged: " + sensor +
+              " has accuracy: " + accuracy);
+    }
+
+
+    // receives sensor changes
+    public void onSensorChanged(SensorEvent event) {
+        if (event.sensor.getType() == Sensor.TYPE_ACCELEROMETER)
+            mainText.setText("\nacc x = " + event.values[0] +
+                            "\nacc y = " + event.values[1] +
+                            "\nacc z = " + event.values[2]);
+    }
+
+    // ...
+}
